@@ -2,6 +2,7 @@ import sys, random
 
 # Game:
 # Generates a playable instance of Big Two for the bots to use
+# By Nemz and Benjani
 
 class Game:
     def __init__(self):
