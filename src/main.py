@@ -2,7 +2,6 @@ import sys, random
 
 # Game:
 # Generates a playable instance of Big Two for the bots to use
-# By Nemz and Benjani
 
 class Game:
     def __init__(self):
@@ -231,6 +230,23 @@ class Game:
                             self.deal()
                     else:
                         self.turn += 1
+
+
+class Algorithm:
+
+    """
+    Strategy:
+    - Split our cards into possible hands
+    - Calculate percentile for each hand type, taking into consideration the hands that have already been played
+    - Play our best cards except leave a set of pairs and a single for the end
+    - Ultiately, minimise passing
+    """
+
+    def __init__(self):
+        pass
+
+    def getAction(self, state, info):
+        pass
 
 
 game = Game()
