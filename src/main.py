@@ -1,278 +1,151 @@
-import sys, random
+"""
+BIG 2 DUTY FREE
+Copyright (c) TNemz and Plastic Tortoise
 
-# Game:
-# Generates a playable instance of Big Two for the bots to use
+Strategy:
+    - Split our cards into possible hands
+    - Calculate percentile for each hand type, taking into consideration the hands that have already been played
+    - Play our best cards except leave a pair and a single for the end
+    - Ultimately, this strategy aims to minimise passing  
+"""
 
-class Game:
-    def __init__(self):
-        self.points = [0, 0, 0, 0]
-        self.tabled = ()
-        self.passed = 0
-        self.turn = 0
-        self.round = 0
-        self.deal()
+from classes import *
+import itertools
 
-    # cards(self) -> list[tuple]
-    # Generates a deck of cards and randomises the order
-
-    def cards(self):
-        deck = [(x, y) for x in range(3, 16) for y in ["hearts", "spades", "clubs", "diamonds"]]
-        random.shuffle(deck)
-
-        return deck
-    
-    # deal(self)
-    # Ditributes the randomly ordered cards among all the players
-
-    def deal(self):
-        deck = self.cards()
-
-        self.players = [[],[],[],[]]
-
-        for index in range(len(deck)):
-            self.players[index % 4].append(deck[index])
-
-    # deal(self, suit1: Literal, suit2: Literal) -> Literal['spades', 'hearts', 'clubs', 'diamonds']
-    # Retuns the highest suit of two provided
-
+class Algorithm:
     def high_suit(self, suit1, suit2):
         if suit1 == suit2:
             return suit1
         
-        if "spades" in [suit1, suit2]:
-            return "spades"
+        if "S" in [suit1, suit2]:
+            return "S"
         
-        if "hearts" in [suit1, suit2]:
-            return "hearts"
+        if "H" in [suit1, suit2]:
+            return "H"
         
-        return "clubs"
-
-    # move_type(self, move : list) -> tuple
-    # If a move is valid in big 2, returns the type of move as a tuple. If not, returns an invalid tuple.
+        return "C"
     
-    def move_type(self, move):
+    def tuple_cards(self, hand: list):
+        ranks = ['3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A', '2']
+
+        tuple_hand = []
+
+        for i in hand:
+            value = ranks.index(i[0]) + 3
+            tuple_hand.append((value, i[1]))
+
+        return tuple_hand
+    
+    def untuple_cards(self, hand: list):
+        ranks = ['3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A', '2']
+
+        for i in hand:
+
+        for i in hand:
+            value = ranks.index(i[0]) + 3
+            tuple_hand.append((value, i[1]))
+
+        return tuple_hand
+    
+    def valid(self, move):
         move.sort()
 
         # High card
         if len(move) == 1:
-            return ("High card", move[0][0], move[0][1])
+            return True
         
         # Two of a kind
         if len(move) == 2 and move[0][0] == move[1][0]:
-            return ("Two of a kind", move[0][0], self.high_suit(move[0][1], move[1][1]))
+            return True
         
         # Trips
         if len(move) == 3 and move[0][0] == move[1][0] == move[2][0]:
-            return ("Trips", move[0][0])
+            return True
          
         if len(move) == 5:
             # Straight flush
             if move[0][0] % 13 == move[1][0] % 13 - 1 == move[2][0] % 13 - 2 == move[3][0] % 13 - 3 and (move[0][0] % 13 == move[4][0] % 13 - 4 or move[0][0] % 13 == move[4][0] - 4) and move[0][1] == move[1][1] == move[2][1] == move[3][1] == move[4][1]:
-                return ("Straight flush", move[0][0] % 13, move[1][0])
+                return True
             
             # Straight
             if move[0][0] % 13 == move[1][0] % 13 - 1 == move[2][0] % 13 - 2 == move[3][0] % 13 - 3 and move[0][0] == move[4][0] % 13 - 4 or move[0][0] == move[4][0] - 4:
-                return ("Straight", move[0][0] % 13)
+                return True
             
             # Flush
             if move[0][1] == move[1][1] == move[2][1] == move[3][1] == move[4][1]:
-                return ("Flush", move[4][0], move[0][1])
+                return True
             
             # Full house
             if move[0][0] == move[1][0] and move[2][0] == move[3][0] == move[4][0]:
-                return ("Full house", move[4][0])
+                return True
             
             if move[0][0] == move[1][0] == move[2][0] and move[3][0] == move[4][0]:
-                return ("Full house", move[0][0])
+                return True
             
             # Four of a kind
             if move[0][0] == move[1][0] == move[2][0] == move[3][0]:
-                return ("Four of a kind", move[0][0])
+                return True
 
             if move[1][0] == move[2][0] == move[3][0] == move[4][0]:
-                return ("Four of a kind", move[4][0])
+                return True
 
-        return ("Invalid")
-    
-
-    def valid(self, move):
-        if len(self.tabled) == 0:
-            return True
-        
-        move = self.move_type(move)
-        
-        if move == ("Invalid"):
-            return False
-        
-        if move[0] == self.tabled[0] == "High card":
-            if move[1] > self.tabled[1] or move[1] == self.tabled[1] and self.high_suit(self.tabled[2], move[2]) == move[2]:
-                return True
-        
-        if move[0] == self.tabled[0] == "Trips" and move[1] > self.tabled[1]:
-            return True
-
-        if move[0] == self.tabled[0] == "Two of a kind":
-            if move[1] > self.tabled[1]:
-                return True
-            
-            if move[1] == self.tabled[1] and self.high_suit(move[2], self.tabled[2]) == move[2]:
-                return True
-            
-        if move[0] == "Straight flush":
-            if self.tabled[0] in ["Four of a kind", "Full house", "Flush", "Straight"]:
-                return True
-            
-            if move[0] == self.tabled[0]:
-                if move[1] > self.tabled[1]:
-                    return True
-                
-                if move[1] == self.tabled[1] and self.high_suit(move[2], self.tabled[2]) == move[2]:
-                    return True
-        
-        if move[0] == "Four of a kind":
-            if self.tabled[0] in ["Full house", "Flush", "Straight"]:
-                return True
-            
-            if move[0] == self.tabled[0] and move[1] > self.tabled[1]:
-                return True
-                
-        if move[0] == "Full house":
-            if self.tabled[0] in ["Flush", "Straight"]:
-                return True
-            
-            if move[0] == self.tabled[0] and move[1] > self.tabled[1]:
-                return True
-            
-        if move[0] == "Flush":
-            if self.tabled[0] == "Straight":
-                return True
-            
-            if move[0] == self.tabled[0]:
-                if move[1] > self.tabled[1]:
-                    return True
-                
-                if move[1] == self.tabled[1] and self.high_suit(move[2], self.tabled[2]) == move[2]:
-                    return True
-                
-        if move[0] == self.tabled[0] == "Straight" and move[1] > self.tabled[1]:
-            return True
-        
         return False
+
+    def percentile(self, trick: list, hand: list, played: list):
+        deck = [(x, y) for x in range(3, 16) for y in ["H", "S", "C", "D"]]
+        deck = list(set(deck) - set(hand) - set(played) - set(trick))
+
+        if len(trick) == 1:
+            higher = 0
+            
+            for card in deck:
+                if card[0] > trick[0][0] or (card[0] == trick[0][0] and self.high_suit(card[1], card[0][1]) == card[1]):
+                    higher += 1
+
+            return 1 - (higher / len(deck))
+        elif len(trick) == 2:
+            pass
+
+
+    def split(self, hand: list, played: list):
+        changed_hand = hand
+        split_hand = []
+
+        while len(hand) != 0:
+            strong_hand = []
+            strong_percentile = 0
+
+            valid = 5
+            
+            if valid > 1:
+                for subset in itertools.combinations(changed_hand, valid):
+                    hand_percentile = self.percentile(list(subset), hand, played)
+                    
+                    if self.valid(list(subset)) and hand_percentile > strong_percentile:
+                        strong_percentile = hand_percentile
+                        strong_hand = list(subset)     
+            else:
+                pass
     
-    # calculate_points(self)
-    # Calculates the points for each player at the end of the round
+    def getAction(self, state: MatchState):
+        hand = self.tuple_cards(state.myHand)
 
-    def calculate_points(self):
-        cumulative = 0
-
-        for (index, player) in enumerate(self.players):
-            multiplier = 1
-
-            if self.tabled[0] in ["Straight flush", "Four of a kind"] or self.tabled[0:2] == ("High card", 2):
-                multiplier *= 2
-            
-            if len(player) >= 10:
-                multiplier *= 2
-
-            for card in player:
-                if card[0] % 13 == 2:
-                    multiplier *= 2
-
-                if card[0] <= 10 and (card[0] + 1, card[1]) in player and (card[0] + 2, card[1]) in player and (card[0] + 3, card[1]) in player and (card[0] + 4, card[1]) in player:
-                    multipier *= 2
-
-                if (card[0], "hearts") in player and (card[0], "diamonds") in player and (card[0], "spades") in player and (card[0], "clubs") in player:
-                    multiplier *= 2
-            
-            self.points[index] -= len(player) * multiplier
-            cumulative += len(player) * multiplier
-
-        self.points[self.turn % 4] += cumulative
-
-    # play(self)
-    # Verifies whether a proposed move is valid and applies it if it is
+        played = []
         
-    def play(self, move):
-        hand = self.players[self.turn % 4]
+        for round in state.matchHistory[-1].gameHistory:
+            for cards_played in round:
+                played.extend(cards_played)
 
-        if move == "pass":
-            self.passed += 1
+        split_hand = self.split(hand, played)
 
-            if self.passed == 3:
-                self.tabled = ()
-                self.passed = 0
+        for trick in split_hand:
+            if len(state.toBeat.cards) == 0:
+                return self.untuple_cards(trick), ""
 
-            self.turn += 1
-        else:
-            contained = True
+            if len(state.toBeat.cards) == len(trick):
+                if self.percentile(self.tuple_cards(state.toBeat.cards), [], played) < self.percentile(trick, hand, played):
+                    return self.untuple_cards(trick), ""
+                
+        return [], ""
 
-            for i in move:
-                contained = i in hand and contained
-
-            if contained and len(move) == len(set(move)):
-                if self.valid(move):
-                    for i in move:
-                        self.players[self.turn % 4].remove(i)
-
-                    self.tabled = self.move_type(move)
-                    self.passed = 0
-
-                    if len(self.players[self.turn % 4]) == 0:
-                        if self.round >= 8:
-                            sys.exit()
-                        else:
-                            self.calculate_points()
-                            print(self.points)
-
-                            self.turn = 0
-                            self.tabled = ()
-                            self.round += 1
-                            self.deal()
-                    else:
-                        self.turn += 1
-
-
-class Algorithm:
-
-    """
-    Strategy:
-    - Split our cards into possible hands
-    - Calculate percentile for each hand type, taking into consideration the hands that have already been played
-    - Play our best cards except leave a set of pairs and a single for the end
-    - Ultiately, minimise passing
-    """
-
-    def __init__(self):
-        pass
-
-    def getAction(self, state, info):
-        pass
-
-
-game = Game()
-
-while True:
-    print("Tabled:", game.tabled)
-    print("Your Hand:", game.players[game.turn % 4])
-
-    try:
-        y = input()
-
-        if y == "pass":
-            game.play(y)
-        else:
-            move = y.split(";")
-
-            for (index, card) in enumerate(move):
-                x = card.strip().split(" of ")
-                x[0] = int(x[0])
-                move[index] = tuple(x,)
-
-            print(move)
-
-            game.play(move)
-    except KeyboardInterrupt:
-        sys.exit()
-    except ValueError:
-        pass
 
