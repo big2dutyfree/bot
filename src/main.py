@@ -275,7 +275,7 @@ class Algorithm:
         
         for round in state.matchHistory[-1].gameHistory:
             for cards_played in round:
-                played.extend(cards_played)
+                played.extend(cards_played.cards)
 
         split_hand = self.split(hand, played)
 
@@ -290,4 +290,4 @@ class Algorithm:
         return [], ""
 
 
-print(Algorithm().untuple_cards([(7, 'S'), (8, 'S'), (10, 'S'), (11, 'S'), (14, 'S')]))
+# print(Algorithm().untuple_cards([(7, 'S'), (8, 'S'), (10, 'S'), (11, 'S'), (14, 'S')]))
