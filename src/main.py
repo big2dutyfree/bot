@@ -236,6 +236,9 @@ class Algorithm:
                     return 1 - (5108 / n)
                 if trick_type == "Straight":
                     return 1 - (10200 / n)
+                
+            
+        return 0
 
 
     def split(self, hand: list, played: list):
