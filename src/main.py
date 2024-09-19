@@ -280,11 +280,11 @@ class Algorithm:
         split_hand = self.split(hand, played)
 
         for trick in split_hand:
-            if len(state.toBeat.cards) == 0:
+            if len(state.toBeat) == 0:
                 return self.untuple_cards(trick), ""
 
-            if len(state.toBeat.cards) == len(trick):
-                if self.percentile(self.tuple_cards(state.toBeat.cards), [], played) < self.percentile(trick, hand, played):
+            if len(state.toBeat) == len(trick):
+                if self.percentile(self.tuple_cards(state.toBeat), [], played) < self.percentile(trick, hand, played):
                     return self.untuple_cards(trick), ""
                 
         return [], ""
