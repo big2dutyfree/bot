@@ -126,7 +126,7 @@ class Algorithm:
             higher = 0
             
             for card in deck:
-                if card[0] > trick[0][0] or (card[0] == trick[0][0] and self.high_suit(card[1], card[0][1]) == card[1]):
+                if card[0] > trick[0][0] or (card[0] == trick[0][0] and self.high_suit(card[1], trick[0][1]) == card[1]):
                     higher += 1
 
             return 1 - (higher / len(deck))
