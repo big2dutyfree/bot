@@ -40,12 +40,35 @@ class Algorithm:
         ranks = ['3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A', '2']
 
         for i in hand:
+            pass
 
-        for i in hand:
-            value = ranks.index(i[0]) + 3
-            tuple_hand.append((value, i[1]))
+    def move_type(self, move):
+        move.sort()
 
-        return tuple_hand
+        if move[0][0] % 13 == move[1][0] % 13 - 1 == move[2][0] % 13 - 2 == move[3][0] % 13 - 3 and (move[0][0] % 13 == move[4][0] % 13 - 4 or move[0][0] % 13 == move[4][0] - 4) and move[0][1] == move[1][1] == move[2][1] == move[3][1] == move[4][1]:
+            return ("Straight flush", move[0][0] % 13, move[1][0])
+        
+        # Straight
+        if move[0][0] % 13 == move[1][0] % 13 - 1 == move[2][0] % 13 - 2 == move[3][0] % 13 - 3 and move[0][0] == move[4][0] % 13 - 4 or move[0][0] == move[4][0] - 4:
+            return ("Straight", move[0][0] % 13)
+        
+        # Flush
+        if move[0][1] == move[1][1] == move[2][1] == move[3][1] == move[4][1]:
+            return ("Flush", move[4][0], move[3][0], move[2][0], move[1][0], move[0][1])
+        
+        # Full house
+        if move[0][0] == move[1][0] and move[2][0] == move[3][0] == move[4][0]:
+            return ("Full house", move[4][0])
+        
+        if move[0][0] == move[1][0] == move[2][0] and move[3][0] == move[4][0]:
+            return ("Full house", move[0][0])
+        
+        # Four of a kind
+        if move[0][0] == move[1][0] == move[2][0] == move[3][0]:
+            return ("Four of a kind", move[0][0])
+
+        if move[1][0] == move[2][0] == move[3][0] == move[4][0]:
+            return ("Four of a kind", move[4][0])
     
     def valid(self, move):
         move.sort()
@@ -103,19 +126,95 @@ class Algorithm:
                     higher += 1
 
             return 1 - (higher / len(deck))
-        elif len(trick) == 2:
-            pass
+        elif len(trick) == 2 and self.valid(trick):
+            higher = 0
+            n = 0
+
+            for card in deck:
+                for card2 in deck:
+                    if card[0] == card2[0] and card != card2:
+                        n += 0.5
+
+                        if card[0] > trick[0][0] or (card[0] == trick[0][0] and (card[1] == "S" or card2[1] == "S")):
+                            higher += 0.5
+            
+            return 1 - (higher / n)
+        elif len(trick) == 3 and self.valid(trick):
+            higher = 0
+            n = 0
+
+            for card in deck:
+                for card2 in deck:
+                    for card3 in deck:
+                        if card[0] == card2[0] == card3[0] and card not in [card2, card3] and card2 != card3:
+                            n += 0.5
+
+                            if card[0] > trick[0][0]:
+                                higher += 0.5
+            
+            return 1 - (higher / n)
+        elif len(trick) == 5:
+            n = 0
+            higher = 0
+
+
+            for cards in itertools.combinations(deck, 5):
+                if self.valid(list(cards)):
+                    n += 1
+
+                    trick_type = self.move_type(trick)
+                    card_type = self.move_type(list(cards))
+
+                    if card_type[0] == "Straight flush":
+                        if trick_type[0] in ["Four of a kind", "Full house", "Flush", "Straight"]:
+                            higher += 1
+                        
+                        if card_type[0] == trick_type[0]:
+                            if card_type[1] > trick_type[1]:
+                                higher += 1
+                            
+                            if card_type[1] == trick_type[1] and self.high_suit(card_type[2], trick_type[2]) == card_type[2]:
+                                higher += 1
+                    
+                    if card_type[0] == "Four of a kind":
+                        if trick_type[0] in ["Full house", "Flush", "Straight"]:
+                            higher += 1
+                        
+                        if card_type[0] == trick_type[0] and card_type[1] > trick_type[1]:
+                            higher += 1
+                            
+                    if card_type[0] == "Full house":
+                        if trick_type[0] in ["Flush", "Straight"]:
+                            higher += 1
+                        
+                        if card_type[0] == trick_type[0] and card_type[1] > trick_type[1]:
+                            higher += 1
+                        
+                    if card_type[0] == "Flush":
+                        if trick_type[0] == "Straight":
+                            higher += 1
+                        
+                        if card_type[0] == trick_type[0]:
+                            if card_type[1] > trick_type[1]:
+                                higher += 1
+                            
+                            if card_type[1] == trick_type[1] and self.high_suit(card_type[2], trick_type[2]) == card_type[2]:
+                                higher += 1
+                            
+                    if card_type[0] == trick_type[0] == "Straight" and card_type[1] > trick_type[1]:
+                        higher += 1
+
+            return n
 
 
     def split(self, hand: list, played: list):
         changed_hand = hand
         split_hand = []
+        valid = 5
 
-        while len(hand) != 0:
+        while len(changed_hand) != 0:
             strong_hand = []
             strong_percentile = 0
-
-            valid = 5
             
             if valid > 1:
                 for subset in itertools.combinations(changed_hand, valid):
@@ -123,9 +222,20 @@ class Algorithm:
                     
                     if self.valid(list(subset)) and hand_percentile > strong_percentile:
                         strong_percentile = hand_percentile
-                        strong_hand = list(subset)     
+                        strong_hand = list(subset)
+
+                if strong_percentile == 0:
+                    valid -= 1
+
+                split_hand.append(strong_hand)
+                changed_hand = list(set(changed_hand) - set(strong_hand))
             else:
-                pass
+                split_hand.extend(changed_hand)
+                changed_hand = []
+
+        return split_hand
+
+
     
     def getAction(self, state: MatchState):
         hand = self.tuple_cards(state.myHand)
@@ -149,3 +259,4 @@ class Algorithm:
         return [], ""
 
 
+print(Algorithm().percentile([(10, "H"), (10, "S"), (10, "D"), (8, "D"), (8, "H")], [], []))
