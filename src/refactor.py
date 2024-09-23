@@ -160,7 +160,7 @@ class Algorithm:
 
         return hands
     
-    def compare(self, hand: list, to_beat: list | tuple) -> bool:
+    def compare(self, hand: list, to_beat: list) -> bool:
         if hand[0] == "Straight flush":
             if to_beat[0] in ["Flush", "Full house", "Straight"] or len(to_beat) == 4:
                 return True
@@ -231,13 +231,16 @@ class Algorithm:
             "A": [],
             "B": [],
             "C": [],
-            "D": []
+            "D": [],
+            "all": []
         }
 
         op = self.opponents(hand, played)
 
         for i in hand:
             beats = sum(1 for x in op["single"] if self.compare([i], x))
+
+            classes["all"].append([i])
 
             if beats == len(op["single"]):
                 classes["A"].append([i])
@@ -252,20 +255,24 @@ class Algorithm:
                 if (i[0], j) in hand and i != (i[0], j):
                     beats = sum(1 for x in op["pairs"] if self.compare([i, (i[0], j)], x))
 
-                    if beats == len(op["pairs"]) and self.oset([(i[0], j), i]) not in classes["A"] and self.oset([(i[0], j), i]) not in classes["B"]:
+                    if beats == len(op["pairs"]) and self.oset([(i[0], j), i]) not in classes["all"]:
                         classes["A"].append(self.oset([(i[0], j), i]))
-                    elif beats > 0.8 * len(op["pairs"]) and self.oset([(i[0], j), i]) not in classes["B"] and self.oset([(i[0], j), i]) not in classes["A"]:
+                    elif beats > 0.8 * len(op["pairs"]) and self.oset([(i[0], j), i]) not in classes["all"]:
                         classes["B"].append(self.oset([(i[0], j), i]))
-                    elif beats == 0 and [(i[0], j), i] not in classes["D"]:
+                    elif beats == 0 and self.oset([(i[0], j), i]) not in classes["all"]:
                         classes["D"].append(self.oset([(i[0], j), i]))
-                    elif [(i[0], j), i] not in classes["C"]:
+                    elif self.oset([(i[0], j), i]) not in classes["all"]:
                         classes["C"].append(self.oset([(i[0], j), i]))
 
+                    if self.oset([(i[0], j), i]) not in classes["all"]:
+                        classes["all"].append(self.oset([(i[0], j), i]))
 
         for i in itertools.combinations(hand, 3):
             beats = sum(1 for x in op["triple"] if self.compare(i, x))
             
             if i[0][0] == i[1][0] == i[2][0]:
+                classes["all"].append(self.oset(i))
+
                 if beats == len(op["triple"]):
                     classes["A"].append(self.oset(i))
                 elif beats > 0.8 * len(op["triple"]):
@@ -279,6 +286,8 @@ class Algorithm:
             beats = sum(1 for x in op["fours"] if self.compare(i, x))
             
             if i[0][0] == i[1][0] == i[2][0] == i[3][0]:
+                classes["all"].append(self.oset(i))
+                 
                 if beats == len(op["fours"]):
                     classes["A"].append(self.oset(i))
                 elif beats > 0.8 * len(op["fours"]):
@@ -308,6 +317,8 @@ class Algorithm:
 
             if hand != ():
                 beats = sum(1 for x in op["fiver"] if self.compare(hand, x))
+
+                classes["all"].append(i)
                 
                 if beats == len(op["fiver"]):
                     classes["A"].append(i)
@@ -320,7 +331,69 @@ class Algorithm:
 
         return classes
 
+    
+    def two_cards(self, hand: list, classified: dict, ohands: list) -> list:
+        higher = ()
+        lower = ()
 
+        if self.compare([hand[0]], [hand[1]]):
+            higher = hand[0]
+            lower = hand[1]
+        else:
+            higher = hand[1]
+            lower = hand[0]
+
+        if 1 in ohands or [higher] in classified["A"]:
+            return higher
+        
+        return lower
+    
+    def three_cards(self, hand: list, classified: dict, ohands: list) -> list:
+        for i in classified["all"]:
+            if len(i) == 2:
+                if i in classified["A"]:
+                    return i
+                
+                if list(set(hand) - set(i)) in classified["A"]:
+                    return list(set(hand) - set(i))
+                
+                if 1 in ohands:
+                    return i
+                
+                if 2 in ohands:
+                    return list(set(hand) - set(i))
+                
+                return i
+
+        higher = ()
+        lower = ()
+
+        if self.compare([hand[0]], [hand[1]]):
+            higher = hand[0]
+            lower = hand[1]
+        else:
+            higher = hand[1]
+            lower = hand[0]
+
+        if self.compare([hand[2]], [higher]):
+            higher = hand[2]
+
+        if self.compare([lower], [hand[2]]):
+            lower = hand[2]
+
+        if [higher] in classified["A"]:
+            return list(set(hand) - {higher} - {lower})
+        
+        if 1 in ohands:
+            return [higher]
+        
+        return [lower]
+    
+    def four_cards(self, hand: list, classified: dict, ohands: list) -> list:
+        pass
+
+    def win_in_three(self, hand: list, classified: dict, ohands: list) -> list | None:
+        pass
 
     def getAction(self, state: MatchState | None):
         hand =  ["3H", "5D", "6D", "6S", "7H", "8D", "TC", "QD", "QH", "KS", "AD", "2C", "2S"]
@@ -337,12 +410,109 @@ class Algorithm:
         """
         classified = self.classify(hand, played)
 
+        ohands = []
+
+        for (index, player) in enumerate(state.players):
+            if index != state.myPlayerNum:
+                ohands.append(player.handSize)
+
+
         # One combination left
         
         if self.oset(hand) in classified["A"] or self.oset(hand) in classified["B"] or self.oset(hand) in classified["C"] or self.oset(hand) in classified["D"]:
             return self.untuple_cards(hand), ""
 
-        return classified
+        # Control
+        if state.toBeat == None:
+            if (3, "D") in hand:
+                return ["3D"]
+
+            # Two card rule
+            if len(hand) == 2:
+                return self.untuple_cards(self.two_cards(hand, classified, ohands)), ""
+            
+            # Three card rule
+            if len(hand) == 3:
+                return self.untuple_cards(self.three_cards(hand, classified, ohands)), ""
+
+            # Four card rule
+            if len(hand) == 4:
+                return self.untuple_cards(self.four_cards(hand, classified, ohands)), ""
+
+            # Win in three rule
+            self.win_in_three(hand, classified)
+
+            # Normal play
+
+            fives = []
+            fours = []
+            trips = []
+            pairs = []
+            singles = []
+            worst_single = ()
+
+            # Find worst single
+
+            for i in classified["D"]:
+                if len(i) == 1:
+                    worst_single = i
+            
+            if len(worst_single) == 0:
+                for i in classified["C"]:
+                    if len(i) == 1:
+                        worst_single = i
+            
+            if len(worst_single) == 0:
+                for i in classified["B"]:
+                    if len(i) == 1:
+                        worst_single = i
+
+            if len(worst_single) == 0:
+                for i in classified["A"]:
+                    if len(i) == 1:
+                        worst_single = i
+
+            # Find fives, trips and pairs
+
+            for i in classified["all"]:
+                if len(i) == 5:
+                    fives.append(i)
+                if len(i) == 4:
+                    i.append(worst_single)
+                    fives.append(i)
+                if len(i) == 3:
+                    trips.append(i)
+                if len(i) == 2:
+                    pairs.append(i)
+                if len(i) == 1:
+                    singles.append(i)
+
+            if 1 in ohands:
+                if len(fives) != 0:
+                    return self.untuple_cards(fives[0]), ""
+                
+                if len(trips) != 0:
+                    return self.untuple_cards(trips[0]), ""
+
+                if len(pairs) != 0:
+                    return self.untuple_cards(pairs[0]), ""
+            else:
+                if len(trips) > len(pairs) and len(fives) == 0 and len(fours) == 0:
+                    return self.untuple_cards(trips[0]), ""
+                if len(pairs) > len(singles) and len(fives) == 0 and len(fours) == 0:
+                    return self.untuple_cards(pairs[0]), ""
+                
+            if len(classified["D"]) != 0:
+                return self.untuple_cards(classified["D"][0]), ""
+            if len(classified["C"]) != 0:
+                return self.untuple_cards(classified["C"][0]), ""
+            if len(classified["B"]) != 0:
+                return self.untuple_cards(classified["B"][0]), ""
+            
+            return self.untuple_cards(classified["A"][0]), ""
+        else:
+            # Not in control
+            pass
 
 
-print(Algorithm().getAction(None))
+print(Algorithm().three_cards([(15, "S"), (3, "S"), (4, "D")], Algorithm().classify([(15, "S"), (3, "S"), (4, "D")], []), [2, 3, 5]))
