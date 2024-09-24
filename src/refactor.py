@@ -707,10 +707,10 @@ class Algorithm:
             classified["C"].sort()
             classified["D"].sort()
             
-            classified["A"].sort(key=len)
-            classified["B"].sort(key=len)
-            classified["C"].sort(key=len)
-            classified["D"].sort(key=len)
+            classified["A"].sort(key=len, reverse=True)
+            classified["B"].sort(key=len, reverse=True)
+            classified["C"].sort(key=len, reverse=True)
+            classified["D"].sort(key=len, reverse=True)
 
 
             if 1 in ohands:
