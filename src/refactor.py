@@ -180,7 +180,7 @@ class Algorithm:
             if to_beat[0] == "Flush":
                 hand[1].sort()
                 to_beat[1].sort()
-                
+
                 if hand[1][4] > to_beat[1][4]:
                     return True
                 
@@ -622,10 +622,6 @@ class Algorithm:
             
             if (3, "D") in hand:
                 for i in classified["all"]:
-                    if len(i) == 5 and (3, "D") in i:
-                        return self.untuple_cards(i), ""
-                
-                for i in classified["all"]:
                     if len(i) == 3 and (3, "D") in i:
                         return self.untuple_cards(i), ""
                     
@@ -633,6 +629,10 @@ class Algorithm:
                     if len(i) == 2 and (2, "D") in i:
                         return self.untuple_cards(i), ""
                     
+                for i in classified["all"]:
+                    if len(i) == 5 and (3, "D") in i:
+                        return self.untuple_cards(i), ""
+                 
                 return ["3D"], ""
 
             # Two card rule
@@ -701,16 +701,16 @@ class Algorithm:
             trips.sort()
             pairs.sort()
             singles.sort()
+            
+            classified["A"].sort(key=len, reverse=True)
+            classified["B"].sort(key=len, reverse=True)
+            classified["C"].sort(key=len, reverse=True)
+            classified["D"].sort(key=len, reverse=True)
 
             classified["A"].sort()
             classified["B"].sort()
             classified["C"].sort()
             classified["D"].sort()
-
-            classified["A"].sort(key=len, reverse=True)
-            classified["B"].sort(key=len, reverse=True)
-            classified["C"].sort(key=len, reverse=True)
-            classified["D"].sort(key=len, reverse=True)
 
             if 1 in ohands:
                 if len(fives) != 0:
