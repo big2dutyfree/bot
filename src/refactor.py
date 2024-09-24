@@ -335,9 +335,9 @@ class Algorithm:
         hand.sort()
 
         if 1 in ohands or hand[1] in classified["A"]:
-            return hand[1]
+            return [hand[1]]
         
-        return hand[0]
+        return [hand[0]]
     
     def three_cards(self, hand: list, classified: dict, ohands: list) -> list:
         for i in classified["all"]:
