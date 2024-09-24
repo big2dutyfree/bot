@@ -177,10 +177,10 @@ class Algorithm:
             if to_beat[0] == "Straight":
                 return True
             
-            hand[1].sort()
-            to_beat[1].sort()
-            
             if to_beat[0] == "Flush":
+                hand[1].sort()
+                to_beat[1].sort()
+                
                 if hand[1][4] > to_beat[1][4]:
                     return True
                 
