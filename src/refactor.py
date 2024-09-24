@@ -597,6 +597,8 @@ class Algorithm:
     def getAction(self, state: MatchState | None):
         hand = self.tuple_cards(state.myHand)
 
+        print(state.myHand)
+
         played = []
         
         for round in state.matchHistory[-1].gameHistory:
