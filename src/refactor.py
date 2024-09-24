@@ -620,7 +620,7 @@ class Algorithm:
                         return self.untuple_cards(i), ""
                     
                 for i in classified["all"]:
-                    if len(i) == 2 and (2, "D") in i:
+                    if len(i) == 2 and (3, "D") in i:
                         return self.untuple_cards(i), ""
                     
                 for i in classified["all"]:
