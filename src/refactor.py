@@ -332,20 +332,12 @@ class Algorithm:
 
     
     def two_cards(self, hand: list, classified: dict, ohands: list) -> list:
-        higher = ()
-        lower = ()
+        hand.sort()
 
-        if self.compare([hand[0]], [hand[1]]):
-            higher = hand[0]
-            lower = hand[1]
-        else:
-            higher = hand[1]
-            lower = hand[0]
-
-        if 1 in ohands or [higher] in classified["A"]:
-            return [higher]
+        if 1 in ohands or hand[1] in classified["A"]:
+            return hand[1]
         
-        return [lower]
+        return hand[0]
     
     def three_cards(self, hand: list, classified: dict, ohands: list) -> list:
         for i in classified["all"]:
@@ -748,7 +740,7 @@ class Algorithm:
 
             to_beat = beat
 
-            to_beat.sort()
+            beat.sort()
 
             if len(beat) == 5:
                 if beat[0][0] <= 10 and beat[0][0] == beat[1][0] - 1 == beat[2][0] - 2 == beat[3][0] - 3 == beat[4][0] - 4:
