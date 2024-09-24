@@ -701,16 +701,17 @@ class Algorithm:
             trips.sort()
             pairs.sort()
             singles.sort()
-            
-            classified["A"].sort(key=len, reverse=True)
-            classified["B"].sort(key=len, reverse=True)
-            classified["C"].sort(key=len, reverse=True)
-            classified["D"].sort(key=len, reverse=True)
 
             classified["A"].sort()
             classified["B"].sort()
             classified["C"].sort()
             classified["D"].sort()
+            
+            classified["A"].sort(key=len)
+            classified["B"].sort(key=len)
+            classified["C"].sort(key=len)
+            classified["D"].sort(key=len)
+
 
             if 1 in ohands:
                 if len(fives) != 0:
