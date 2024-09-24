@@ -778,9 +778,9 @@ class Algorithm:
                         elif i[0][0] == i[1][0] and i[2][0] == i[3][0] == i[4][0]:
                             trick = ("Full house", i[2][0])
                         elif i[0][0] == i[1][0] == i[2][0] == i[3][0]:
-                            trick = [i[0], i[1], i[2], i[3]]
+                            trick = [i[0], i[1], i[2], i[3], i[4]]
                         elif i[1][0] == i[2][0] == i[3][0] == i[4][0]:
-                            trick = [i[0], i[1], i[2], i[3]]
+                            trick = [i[0], i[1], i[2], i[3], i[4]]
 
                     if len(i) == len(beat):
                         if self.compare(trick, to_beat):
