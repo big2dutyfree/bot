@@ -1,10 +1,6 @@
 """
 BIG 2 DUTY FREE 2.0
-Copyright (c) TNemz and Plastic Tortoise
-
-Strategy: Extension of Sugiyanto's (2020) proposed algorithm to accomodate triples.
-
-https://doi.org/10.3390/app11094206
+Copyright (c) The Plastic Tortoise & TNemz
 """
 
 from classes import *
@@ -390,24 +386,230 @@ class Algorithm:
         return [lower]
     
     def four_cards(self, hand: list, classified: dict, ohands: list) -> list:
-        pass
+        triples = [i for i in classified["all"] if len(i) == 3]
+
+        if len(triples) > 0:
+            if triples[0] in classified["A"]:
+                return triples[0]
+            if list(set(hand) - set(triples[0])) in classified["A"]:
+                return list(set(hand) - set(triples[0]))
+            
+            return triples[0]
+            
+        pairs = [i for i in classified["all"] if len(i) == 2]
+
+        if len(pairs) == 2:
+            strongest = []
+            if self.compare(pairs[0], pairs[1]):
+                strongest = pairs[0]
+            else:
+                strongest = pairs[1]
+
+            if strongest in classified["A"]:
+                return list(set(pairs) - set(strongest))
+            if 2 in ohands:
+                return strongest
+            
+            return list(set(pairs) - set(strongest))
+        
+        if len(pairs) == 1:
+            singles = [i for i in classified["all"] if len(i) == 1]
+
+            strongest = []
+
+            if self.compare(singles[0], singles[1]):
+                strongest = singles[0]
+            else:
+                strongest = singles[1]
+
+            if strongest in classified["A"]:
+                return list(set(singles) - set(strongest))
+            
+            if 1 in ohands:
+                return pairs[0]
+            
+            return list(set(singles) - set(strongest))
+        
+        hand.sort()
+
+        if hand[3] in classified["A"]:
+            return [hand[1]]
+        
+        if 1 in ohands:
+            return [hand[3]]
+        
+        return [hand[0]]
 
     def win_in_three(self, hand: list, classified: dict, ohands: list) -> list | None:
-        pass
+        wm = []
+        changed = hand
+
+        for rank in ["A", "B", "C", "D"]:
+            classified[rank].sort(key=len, reverse=True)
+            for i in classified[rank]:
+                i.sort()
+                if len(i) == 5:
+                    if i[0] in changed and i[1] in changed and i[2] in changed and i[3] in changed and i[4] in changed:
+                        if i[0][0] == i[1][0] - 1 == i[2][0] - 2 == i[3][0] - 3 == i[4][0] - 4 and i[0][1] == i[1][1] == i[2][1] == i[3][1] == i[4][1]:
+                            wm.append(i)
+                            changed = list(set(changed) - set(i))
+                        elif (i[0][0] == i[1][0] == i[2][0] == i[3][0]) or (i[1][0] == i[2][0] == i[3][0] == i[4][0]):
+                            wm.append(i)
+                            changed = list(set(changed) - set(i))
+                        elif (i[0][0] == i[1][0] == i[2][0] and i[3][0] == i[4][0]) or (i[0][0] == i[1][0] and i[2][0] == i[3][0] == i[4][0]):
+                            wm.append(i)
+                            changed = list(set(changed) - set(i))
+                        elif i[0][1] == i[1][1] == i[2][1] == i[3][1] == i[4][1]:
+                            wm.append(i)
+                            changed = list(set(changed) - set(i))
+                        else:
+                            wm.append(i)
+                            changed = list(set(changed) - set(i))
+                elif len(i) == 3:
+                    if i[0] in changed and i[1] in changed and i[2] in changed:
+                        wm.append(i)
+                        changed = list(set(changed) - set(i))
+                elif len(i) == 2:
+                    if i[0] in changed and i[1] in changed:
+                        wm.append(i)
+                        changed = list(set(changed) - set(i))
+                else:
+                    if i[0] in changed:
+                        wm.append(i)
+                        changed = list(set(changed) - set(i))
+
+                if len(changed) == 0:
+                    break
+
+            if len(changed) == 0:
+                    break
+            
+        print(wm)
+
+        if len(wm) == 2:
+            if wm[0] in classified["A"]:
+                return wm[0]
+            
+            if wm[1] in classified["A"]:
+                return wm[1]
+            
+            if len(wm[0]) == 5:
+                return wm[0]
+            
+            if len(wm[1]) == 5:
+                return wm[1]
+            
+            if len(wm[0]) == 2 or len(wm[1]) == 2:
+                wm.sort()
+
+                if 2 in ohands:
+                    return wm[1]
+                
+                return wm[0]
+        if len(wm) == 3:
+            if wm[0] in classified["A"] and wm[1] in classified["A"] or wm[0] in classified["A"] and wm[2] in classified["A"]:
+                return wm[0]
+            
+            if wm[1] in classified["A"] and wm[2] in classified["A"]:
+                return wm[1]
+            
+            if len(wm[0]) == 5:
+                return wm[0]
+            
+            if len(wm[1]) == 5:
+                return wm[1]
+            
+            if len(wm[0]) == 2 or len(wm[1]) == 2:
+                wm.sort()
+
+                if 2 in ohands:
+                    return wm[1]
+                
+                return wm[0]
+            
+    def hold_back(self, hand: list, trick: list, tobeat: list, classified: dict, reclassified: dict, rnd: int, ohands: list, passes: int) -> bool:
+        if len(tobeat) == 1:
+            if len(hand) <= 2:
+                return False
+            if 1 in ohands or 2 in ohands:
+                return False
+            if len(classified["A"]) < (len(classified["B"]) + len(classified["C"]) + len(classified["D"])) or min(len(classified["A"]), ohands[0], ohands[1], ohands[2]) > 6:
+                if trick == reclassified["A"][-1]:
+                    return True
+                
+            return False
+        
+        if len(tobeat) == 2:
+            if len(hand) <= 3:
+                return False
+            
+            if min(ohands) > 2:
+                if trick[0][0] == 15:
+                    return True
+                
+            return False
+        
+        if len(tobeat) == 3:
+            if len(hand) <= 4:
+                return False
+            
+            if min(ohands) > 3:
+                if trick[0][0] == 15:
+                    return True
+                
+            return False
+        
+        if len(tobeat) == 5:
+            if len(hand) == 5:
+                return False
+            
+            if min(len(classified["A"]), ohands[0], ohands[1], ohands[2]) > 6 and rnd <= 4:
+                if passes > 0:
+                    fives = [i for i in reclassified["all"] if len(i) == 5]
+                    if fives >= 2 and (trick in reclassified["A"] or trick in reclassified["B"]):
+                        return True
+                
+            return False
+
+    
+    def split_card(self, tobeat: list, reclassified: dict):
+        if len(tobeat) == 3:
+            for i in reclassified["all"]:
+                if len(i) == 5:
+                    if i[0][0] == i[1][0] == i[2][0] and [i[0], i[1], i[3]] in reclassified["all"]:
+                        return [i[0], i[1], i[3]]
+                    
+                    if i[2][0] == i[3][0] == i[4][0] and [i[2], i[3], i[4]] in reclassified["all"]:
+                        return [i[2], i[3], i[4]]
+        if len(tobeat) == 2:
+            for i in reclassified["all"]:
+                if len(i) == 5:
+                    if i[0][0] == i[1][0] and [i[0], i[1]] in reclassified["all"]:
+                        return [i[0], i[1]]
+                    
+                    if i[3][0] == i[4][0] and [i[3], i[4]] in reclassified["all"]:
+                        return [i[3], i[4]]
+        if len(tobeat) == 1:
+            for i in reclassified["all"]:
+                if len(i) == 2:
+                    if i[0] in reclassified["all"]:
+                        return [i[0]]
+                    
+                    if i[1] in reclassified["all"]:
+                        return [i[1]]
+                    
+        return []
+
 
     def getAction(self, state: MatchState | None):
-        hand =  ["3H", "5D", "6D", "6S", "7H", "8D", "TC", "QD", "QH", "KS", "AD", "2C", "2S"]
-        hand = self.tuple_cards(hand)
-        # hand = self.tuple_cards(state.myHand)
+        hand = self.tuple_cards(state.myHand)
 
         played = []
         
-        """
         for round in state.matchHistory[-1].gameHistory:
             for cards_played in round:
                 played.extend(cards_played.cards)
 
-        """
         classified = self.classify(hand, played)
 
         ohands = []
@@ -440,7 +642,10 @@ class Algorithm:
                 return self.untuple_cards(self.four_cards(hand, classified, ohands)), ""
 
             # Win in three rule
-            self.win_in_three(hand, classified)
+            wit = self.win_in_three(hand, classified)
+
+            if wit != None:
+                return self.untuple_cards(wit)
 
             # Normal play
 
@@ -512,7 +717,87 @@ class Algorithm:
             return self.untuple_cards(classified["A"][0]), ""
         else:
             # Not in control
-            pass
+            reclassified = {"A": [], "B": [], "C": [], "D": [], "all": []}
 
+            for rank in ["A", "B", "C", "D"]:
+                for i in classified[rank]:
+                    trick = i
+                    to_beat = state.toBeat
 
-print(Algorithm().three_cards([(15, "S"), (3, "S"), (4, "D")], Algorithm().classify([(15, "S"), (3, "S"), (4, "D")], []), [2, 3, 5]))
+                    if len(i) == 5:
+                        if i[0][0] <= 10 and i[0][0] == i[1][0] - 1 == i[2][0] - 2 == i[3][0] - 3 == i[4][0] - 4:
+                            if i[0][1] == i[1][1] == i[2][1] == i[3][1] == i[4][1]:
+                                trick = ("Straight flush", i[0])
+                            else:
+                                trick = ("Straight", i[0])
+                        elif i[0][1] == i[1][1] == i[2][1] == i[3][1] == i[4][1]:
+                            trick = ("Flush", i)
+                        elif i[0][0] == i[1][0] == i[2][0] and i[3][0] == i[4][0]:
+                            trick = ("Full house", i[0][0])
+                        elif i[0][0] == i[1][0] and i[2][0] == i[3][0] == i[4][0]:
+                            trick = ("Full house", i[2][0])
+                        elif i[0][0] == i[1][0] == i[2][0] == i[3][0]:
+                            trick = [i[0], i[1], i[2], i[3]]
+                        elif i[1][0] == i[2][0] == i[3][0] == i[4][0]:
+                            trick = [i[0], i[1], i[2], i[3]]
+
+                        if state.toBeat[0][0] <= 10 and state.toBeat[0][0] == state.toBeat[1][0] - 1 == state.toBeat[2][0] - 2 == state.toBeat[3][0] - 3 == state.toBeat[4][0] - 4:
+                            if state.toBeat[0][1] == state.toBeat[1][1] == state.toBeat[2][1] == state.toBeat[3][1] == state.toBeat[4][1]:
+                                to_beat = ("Straight flush", state.toBeat[0])
+                            else:
+                                to_beat = ("Straight", state.toBeat[0])
+                        elif state.toBeat[0][1] == state.toBeat[1][1] == state.toBeat[2][1] == state.toBeat[3][1] == state.toBeat[4][1]:
+                            to_beat = ("Flush", state.toBeat)
+                        elif state.toBeat[0][0] == state.toBeat[1][0] == state.toBeat[2][0] and state.toBeat[3][0] == state.toBeat[4][0]:
+                            to_beat = ("Full house", state.toBeat[0][0])
+                        elif state.toBeat[0][0] == state.toBeat[1][0] and state.toBeat[2][0] == state.toBeat[3][0] == state.toBeat[4][0]:
+                            to_beat = ("Full house", state.toBeat[2][0])
+                        elif state.toBeat[0][0] == state.toBeat[1][0] == state.toBeat[2][0] == state.toBeat[3][0]:
+                            to_beat = [state.toBeat[0], state.toBeat[1], state.toBeat[2], state.toBeat[3]]
+                        elif state.toBeat[1][0] == state.toBeat[2][0] == state.toBeat[3][0] == state.toBeat[4][0]:
+                            to_beat = [state.toBeat[0], state.toBeat[1], state.toBeat[2], state.toBeat[3]]
+
+                    if len(i) == len(state.toBeat):
+                        if self.compare(trick, to_beat):
+                            reclassified[rank].append(i)
+                            reclassified["all"].append(i)
+
+            reclassified["D"].sort()
+            reclassified["C"].sort()
+            reclassified["B"].sort()
+            reclassified["A"].sort()
+
+            passes = 0
+            met = False
+
+            round_history = state.matchHistory[-1].gameHistory[-1]
+            round_history.reverse()
+
+            for i in round_history:
+                if met == False and i == []:
+                    passes += 1
+
+                if i != []:
+                    met = True
+
+            if len(reclassified["D"]) > 0:
+                for trick in reclassified["D"]:
+                    if not self.hold_back(hand, trick, state.toBeat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands, passes):
+                        return self.untuple_cards(trick)
+            if len(reclassified["C"]) > 0:
+                for trick in reclassified["C"]:
+                    if not self.hold_back(hand, trick, state.toBeat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands,  passes):
+                        return self.untuple_cards(trick)
+            if len(reclassified["B"]) > 0:
+                for trick in reclassified["B"]:
+                    if not self.hold_back(hand, trick, state.toBeat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands,  passes):
+                        return self.untuple_cards(trick)
+            if len(reclassified["A"]) > 0:
+                for trick in reclassified["A"]:
+                    if not self.hold_back(hand, trick, state.toBeat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands,  passes):
+                        return self.untuple_cards(trick)
+            if 1 in ohands:
+                return self.untuple_cards(self.split_card(state.toBeat, reclassified))
+            
+            return []
+
