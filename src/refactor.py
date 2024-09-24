@@ -340,9 +340,9 @@ class Algorithm:
             lower = hand[0]
 
         if 1 in ohands or [higher] in classified["A"]:
-            return higher
+            return [higher]
         
-        return lower
+        return [lower]
     
     def three_cards(self, hand: list, classified: dict, ohands: list) -> list:
         for i in classified["all"]:
@@ -399,36 +399,27 @@ class Algorithm:
         pairs = [i for i in classified["all"] if len(i) == 2]
 
         if len(pairs) == 2:
-            strongest = []
-            if self.compare(pairs[0], pairs[1]):
-                strongest = pairs[0]
-            else:
-                strongest = pairs[1]
+            pairs.sort()
 
-            if strongest in classified["A"]:
-                return list(set(pairs) - set(strongest))
+            if pairs[1] in classified["A"]:
+                return pairs[0]
             if 2 in ohands:
-                return strongest
+                return pairs[1]
             
-            return list(set(pairs) - set(strongest))
+            return pairs[0]
         
         if len(pairs) == 1:
             singles = [i for i in classified["all"] if len(i) == 1]
 
-            strongest = []
+            singles.sort()
 
-            if self.compare(singles[0], singles[1]):
-                strongest = singles[0]
-            else:
-                strongest = singles[1]
-
-            if strongest in classified["A"]:
-                return list(set(singles) - set(strongest))
+            if singles[1] in classified["A"]:
+                return singles[0]
             
             if 1 in ohands:
                 return pairs[0]
             
-            return list(set(singles) - set(strongest))
+            return singles[0]
         
         hand.sort()
 
@@ -483,8 +474,6 @@ class Algorithm:
 
             if len(changed) == 0:
                     break
-            
-        print(wm)
 
         if len(wm) == 2:
             if wm[0] in classified["A"]:
@@ -534,8 +523,9 @@ class Algorithm:
             if 1 in ohands or 2 in ohands:
                 return False
             if len(classified["A"]) < (len(classified["B"]) + len(classified["C"]) + len(classified["D"])) or min(len(classified["A"]), ohands[0], ohands[1], ohands[2]) > 6:
-                if trick == reclassified["A"][-1]:
-                    return True
+                if len(classified["A"]) > 0:
+                    if trick == classified["A"][-1]:
+                        return True
                 
             return False
         
@@ -563,7 +553,7 @@ class Algorithm:
             if len(hand) == 5:
                 return False
             
-            if min(len(classified["A"]), ohands[0], ohands[1], ohands[2]) > 6 and rnd <= 4:
+            if min(len(classified["A"]), ohands[0], ohands[1], ohands[2]) > 6 and rnd <= 1:
                 if passes > 0:
                     fives = [i for i in reclassified["all"] if len(i) == 5]
                     if fives >= 2 and (trick in reclassified["A"] or trick in reclassified["B"]):
@@ -619,15 +609,28 @@ class Algorithm:
                 ohands.append(player.handSize)
 
 
-        # One combination left
-        
-        if self.oset(hand) in classified["A"] or self.oset(hand) in classified["B"] or self.oset(hand) in classified["C"] or self.oset(hand) in classified["D"]:
-            return self.untuple_cards(hand), ""
-
         # Control
         if state.toBeat == None:
+            print("Control")
+            # One combination left
+        
+            if self.oset(hand) in classified["A"] or self.oset(hand) in classified["B"] or self.oset(hand) in classified["C"] or self.oset(hand) in classified["D"]:
+                return self.untuple_cards(hand), ""
+            
             if (3, "D") in hand:
-                return ["3D"]
+                for i in classified["all"]:
+                    if len(i) == 5 and (3, "D") in i:
+                        return self.untuple_cards(i), ""
+                
+                for i in classified["all"]:
+                    if len(i) == 3 and (3, "D") in i:
+                        return self.untuple_cards(i), ""
+                    
+                for i in classified["all"]:
+                    if len(i) == 2 and (2, "D") in i:
+                        return self.untuple_cards(i), ""
+                    
+                return ["3D"], ""
 
             # Two card rule
             if len(hand) == 2:
@@ -642,10 +645,10 @@ class Algorithm:
                 return self.untuple_cards(self.four_cards(hand, classified, ohands)), ""
 
             # Win in three rule
-            wit = self.win_in_three(hand, classified)
+            wit = self.win_in_three(hand, classified, ohands)
 
             if wit != None:
-                return self.untuple_cards(wit)
+                return self.untuple_cards(wit), ""
 
             # Normal play
 
@@ -705,6 +708,7 @@ class Algorithm:
                 if len(trips) > len(pairs) and len(fives) == 0 and len(fours) == 0:
                     return self.untuple_cards(trips[0]), ""
                 if len(pairs) > len(singles) and len(fives) == 0 and len(fours) == 0:
+                    print("10")
                     return self.untuple_cards(pairs[0]), ""
                 
             if len(classified["D"]) != 0:
@@ -717,12 +721,37 @@ class Algorithm:
             return self.untuple_cards(classified["A"][0]), ""
         else:
             # Not in control
+            beat = self.tuple_cards(state.toBeat.cards)
             reclassified = {"A": [], "B": [], "C": [], "D": [], "all": []}
+
+            print("No control", beat)
+
+            to_beat = beat
+
+            to_beat.sort()
+
+            if len(beat) == 5:
+                if beat[0][0] <= 10 and beat[0][0] == beat[1][0] - 1 == beat[2][0] - 2 == beat[3][0] - 3 == beat[4][0] - 4:
+                    if beat[0][1] == beat[1][1] == beat[2][1] == beat[3][1] == beat[4][1]:
+                        to_beat = ("Straight flush", beat[0])
+                    else:
+                        to_beat = ("Straight", beat[0])
+                elif beat[0][1] == beat[1][1] == beat[2][1] == beat[3][1] == beat[4][1]:
+                    to_beat = ("Flush", beat)
+                elif beat[0][0] == beat[1][0] == beat[2][0] and beat[3][0] == beat[4][0]:
+                    to_beat = ("Full house", beat[0][0])
+                elif beat[0][0] == beat[1][0] and beat[2][0] == beat[3][0] == beat[4][0]:
+                    to_beat = ("Full house", beat[2][0])
+                elif beat[0][0] == beat[1][0] == beat[2][0] == beat[3][0]:
+                    to_beat = [beat[0], beat[1], beat[2], beat[3]]
+                elif beat[1][0] == beat[2][0] == beat[3][0] == beat[4][0]:
+                    to_beat = [beat[0], beat[1], beat[2], beat[3]]
 
             for rank in ["A", "B", "C", "D"]:
                 for i in classified[rank]:
                     trick = i
-                    to_beat = state.toBeat
+
+                    i.sort()
 
                     if len(i) == 5:
                         if i[0][0] <= 10 and i[0][0] == i[1][0] - 1 == i[2][0] - 2 == i[3][0] - 3 == i[4][0] - 4:
@@ -741,23 +770,7 @@ class Algorithm:
                         elif i[1][0] == i[2][0] == i[3][0] == i[4][0]:
                             trick = [i[0], i[1], i[2], i[3]]
 
-                        if state.toBeat[0][0] <= 10 and state.toBeat[0][0] == state.toBeat[1][0] - 1 == state.toBeat[2][0] - 2 == state.toBeat[3][0] - 3 == state.toBeat[4][0] - 4:
-                            if state.toBeat[0][1] == state.toBeat[1][1] == state.toBeat[2][1] == state.toBeat[3][1] == state.toBeat[4][1]:
-                                to_beat = ("Straight flush", state.toBeat[0])
-                            else:
-                                to_beat = ("Straight", state.toBeat[0])
-                        elif state.toBeat[0][1] == state.toBeat[1][1] == state.toBeat[2][1] == state.toBeat[3][1] == state.toBeat[4][1]:
-                            to_beat = ("Flush", state.toBeat)
-                        elif state.toBeat[0][0] == state.toBeat[1][0] == state.toBeat[2][0] and state.toBeat[3][0] == state.toBeat[4][0]:
-                            to_beat = ("Full house", state.toBeat[0][0])
-                        elif state.toBeat[0][0] == state.toBeat[1][0] and state.toBeat[2][0] == state.toBeat[3][0] == state.toBeat[4][0]:
-                            to_beat = ("Full house", state.toBeat[2][0])
-                        elif state.toBeat[0][0] == state.toBeat[1][0] == state.toBeat[2][0] == state.toBeat[3][0]:
-                            to_beat = [state.toBeat[0], state.toBeat[1], state.toBeat[2], state.toBeat[3]]
-                        elif state.toBeat[1][0] == state.toBeat[2][0] == state.toBeat[3][0] == state.toBeat[4][0]:
-                            to_beat = [state.toBeat[0], state.toBeat[1], state.toBeat[2], state.toBeat[3]]
-
-                    if len(i) == len(state.toBeat):
+                    if len(i) == len(beat):
                         if self.compare(trick, to_beat):
                             reclassified[rank].append(i)
                             reclassified["all"].append(i)
@@ -766,6 +779,11 @@ class Algorithm:
             reclassified["C"].sort()
             reclassified["B"].sort()
             reclassified["A"].sort()
+
+            print(reclassified["all"])
+
+            if self.oset(hand) in reclassified["A"] or self.oset(hand) in reclassified["B"] or self.oset(hand) in reclassified["C"] or self.oset(hand) in reclassified["D"]:
+                return self.untuple_cards(hand), ""
 
             passes = 0
             met = False
@@ -782,22 +800,22 @@ class Algorithm:
 
             if len(reclassified["D"]) > 0:
                 for trick in reclassified["D"]:
-                    if not self.hold_back(hand, trick, state.toBeat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands, passes):
-                        return self.untuple_cards(trick)
+                    if not self.hold_back(hand, trick, beat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands, passes):
+                        return self.untuple_cards(trick), ""
             if len(reclassified["C"]) > 0:
                 for trick in reclassified["C"]:
-                    if not self.hold_back(hand, trick, state.toBeat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands,  passes):
-                        return self.untuple_cards(trick)
+                    if not self.hold_back(hand, trick, beat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands,  passes):
+                        return self.untuple_cards(trick), ""
             if len(reclassified["B"]) > 0:
                 for trick in reclassified["B"]:
-                    if not self.hold_back(hand, trick, state.toBeat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands,  passes):
-                        return self.untuple_cards(trick)
+                    if not self.hold_back(hand, trick, beat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands,  passes):
+                        return self.untuple_cards(trick), ""
             if len(reclassified["A"]) > 0:
                 for trick in reclassified["A"]:
-                    if not self.hold_back(hand, trick, state.toBeat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands,  passes):
-                        return self.untuple_cards(trick)
+                    if not self.hold_back(hand, trick, beat, classified, reclassified, len(state.matchHistory[-1].gameHistory), ohands,  passes):
+                        return self.untuple_cards(trick), ""
             if 1 in ohands:
-                return self.untuple_cards(self.split_card(state.toBeat, reclassified))
+                return self.untuple_cards(self.split_card(beat, reclassified)), ""
             
-            return []
+            return [], ""
 
