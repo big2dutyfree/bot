@@ -695,6 +695,20 @@ class Algorithm:
                 if len(i) == 1:
                     singles.append(i)
 
+            trips.sort()
+            pairs.sort()
+            singles.sort()
+
+            classified["A"].sort()
+            classified["B"].sort()
+            classified["C"].sort()
+            classified["D"].sort()
+
+            classified["A"].sort(key=len, reverse=True)
+            classified["B"].sort(key=len, reverse=True)
+            classified["C"].sort(key=len, reverse=True)
+            classified["D"].sort(key=len, reverse=True)
+
             if 1 in ohands:
                 if len(fives) != 0:
                     return self.untuple_cards(fives[0]), ""
