@@ -835,7 +835,7 @@ class Algorithm:
             passes = 0
             met = False
 
-            if 1 in ohands or 2 in ohands:
+            if 1 in ohands:
                 if len(reclassified["A"]) != 0:
                     return self.untuple_cards(reclassified["A"][-1]), ""
                 if len(reclassified["B"]) != 0:
