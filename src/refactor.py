@@ -221,8 +221,16 @@ class Algorithm:
             
             return False
         if len(hand) == 4:
-            if hand[0][0] > to_beat[0][0] or to_beat[0] in ["Flush", "Full house", "Straight"]:
+            if to_beat[0] in ["Flush", "Full house", "Straight"]:
                 return True
+
+            if type(to_beat[0]):
+                return False
+            
+            if hand[0][0] > to_beat[0][0]:
+                return True
+            
+            return False
 
 
     def classify(self, hand: list, played: list):
@@ -317,13 +325,15 @@ class Algorithm:
 
 
             if hand != ():
-                beats = sum(1 for x in list(set(op["fiver"]) + set(op["fours"])) if self.compare(hand, x))
+                fivers = op["fiver"]
+                fivers.extend(op["fours"])
+                beats = sum(1 for x in fivers if self.compare(hand, x))
 
                 classes["all"].append(i)
                 
-                if beats == len(list(set(op["fiver"]) + set(op["fours"]))):
+                if beats == len(fivers):
                     classes["A"].append(i)
-                elif beats > 0.8 * len(list(set(op["fiver"]) + set(op["fours"]))):
+                elif beats > 0.8 * len(fivers):
                     classes["B"].append(i)
                 elif beats == 0:
                     classes["D"].append(i)
@@ -536,7 +546,7 @@ class Algorithm:
             if len(hand) == 5:
                 return False
             
-            if min(len(classified["A"]), ohands[0], ohands[1], ohands[2]) > 6 and rnd <= 1:
+            if min(len(classified["A"]), ohands[0], ohands[1], ohands[2]) > 6 and rnd <= 2:
                 if passes > 0:
                     fives = [i for i in reclassified["all"] if len(i) == 5]
                     if fives >= 2 and (trick in reclassified["A"] or trick in reclassified["B"]):
