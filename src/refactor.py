@@ -784,11 +784,12 @@ class Algorithm:
                 elif beat[0][0] == beat[1][0] == beat[2][0] == beat[3][0]:
                     to_beat = [beat[0], beat[1], beat[2], beat[3]]
                 elif beat[1][0] == beat[2][0] == beat[3][0] == beat[4][0]:
-                    to_beat = [beat[0], beat[1], beat[2], beat[3]]
+                    to_beat = [beat[1], beat[2], beat[3], beat[4]]
 
             for rank in ["A", "B", "C", "D"]:
                 for i in classified[rank]:
                     trick = i
+                    weak = []
 
                     i.sort()
 
@@ -805,12 +806,16 @@ class Algorithm:
                         elif i[0][0] == i[1][0] and i[2][0] == i[3][0] == i[4][0]:
                             trick = ("Full house", i[2][0])
                         elif i[0][0] == i[1][0] == i[2][0] == i[3][0]:
-                            trick = [i[0], i[1], i[2], i[3], i[4]]
+                            trick = [i[0], i[1], i[2], i[3]]
+                            weak = i[4]
                         elif i[1][0] == i[2][0] == i[3][0] == i[4][0]:
-                            trick = [i[0], i[1], i[2], i[3], i[4]]
+                            trick = [i[1], i[2], i[3], i[4]]
+                            weak = i[0]
 
                     if len(i) == len(beat):
                         if self.compare(trick, to_beat):
+                            print(trick, to_beat)
+                            i.append(weak)
                             reclassified[rank].append(i)
                             reclassified["all"].append(i)
 
