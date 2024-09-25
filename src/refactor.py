@@ -815,7 +815,8 @@ class Algorithm:
                     if len(i) == len(beat):
                         if self.compare(trick, to_beat):
                             print(trick, to_beat)
-                            i.append(weak)
+                            if weak != []:
+                                i.append(weak)
                             reclassified[rank].append(i)
                             reclassified["all"].append(i)
 
