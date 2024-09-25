@@ -510,6 +510,9 @@ class Algorithm:
                 return wm[0]
             
     def hold_back(self, hand: list, trick: list, tobeat: list, classified: dict, reclassified: dict, rnd: int, ohands: list, passes: int) -> bool:
+        if len(hand) >= 10:
+            return False
+        
         if len(tobeat) == 1:
             if len(hand) <= 5:
                 return False
