@@ -621,11 +621,11 @@ class Algorithm:
                         return self.untuple_cards(i), ""
                     
                 for i in classified["all"]:
-                    if len(i) == 2 and (3, "D") in i:
+                    if len(i) == 5 and (3, "D") in i:
                         return self.untuple_cards(i), ""
                     
                 for i in classified["all"]:
-                    if len(i) == 5 and (3, "D") in i:
+                    if len(i) == 2 and (3, "D") in i:
                         return self.untuple_cards(i), ""
                  
                 return ["3D"], ""
@@ -659,24 +659,9 @@ class Algorithm:
 
             # Find worst single
 
-            for i in classified["D"]:
-                if len(i) == 1:
-                    worst_single = i
-            
-            if len(worst_single) == 0:
-                for i in classified["C"]:
-                    if len(i) == 1:
-                        worst_single = i
-            
-            if len(worst_single) == 0:
-                for i in classified["B"]:
-                    if len(i) == 1:
-                        worst_single = i
+            singles.sort()
 
-            if len(worst_single) == 0:
-                for i in classified["A"]:
-                    if len(i) == 1:
-                        worst_single = i
+            worst_single = singles[0]
 
             # Find fives, trips and pairs
 
@@ -833,7 +818,7 @@ class Algorithm:
             passes = 0
             met = False
 
-            if 1 in ohands:
+            if 1 in ohands or 2 in ohands:
                 if len(reclassified["A"]) != 0:
                     return self.untuple_cards(reclassified["A"][-1]), ""
                 if len(reclassified["B"]) != 0:
