@@ -182,21 +182,27 @@ class Algorithm:
                 to_beat[1].sort()
 
                 if hand[1][4] > to_beat[1][4]:
+                    print("1", hand[1], to_beat[1])
                     return True
                 
                 if hand[1][4] == to_beat[1][4] and hand[1][3] > to_beat[1][3]:
+                    print("2", hand[1], to_beat[1])
                     return True
                 
                 if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] > to_beat[1][2]:
+                    print("3", hand[1], to_beat[1])
                     return True
                 
                 if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] == to_beat[1][2] and hand[1][1] > to_beat[1][1]:
+                    print("4", hand[1], to_beat[1])
                     return True
                 
                 if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] == to_beat[1][2] and hand[1][1] == to_beat[1][1] and hand[1][0] > to_beat[1][0]:
+                    print("5", hand[1], to_beat[1])
                     return True
                 
                 if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] == to_beat[1][2] and hand[1][1] == to_beat[1][1] and hand[1][0] == to_beat[1][0] and self.high_suit(hand[1][1], to_beat[1][1]) == hand[1][1]:
+                    print("6", hand[1], to_beat[1])
                     return True
             
             return False
