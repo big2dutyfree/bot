@@ -282,14 +282,16 @@ class Algorithm:
                     classes["C"].append(self.oset(i))
 
         for i in itertools.combinations(hand, 4):
-            beats = sum(1 for x in op["fours"] if self.compare(i, x))
+            beats1 = sum(1 for x in op["fours"] if self.compare(i, x))
+            beats2 = sum(1 for x in op["fiver"] if self.compare(i, x))
+            beats = beats1 + beats2
             
             if i[0][0] == i[1][0] == i[2][0] == i[3][0]:
                 classes["all"].append(self.oset(i))
                  
-                if beats == len(op["fours"]):
+                if beats == len(op["fours"]) + len(op["fiver"]):
                     classes["A"].append(self.oset(i))
-                elif beats > 0.8 * len(op["fours"]):
+                elif beats > 0.8 * (len(op["fours"]) + len(op["fiver"])):
                     classes["B"].append(self.oset(i))
                 elif beats == 0:
                     classes["D"].append(self.oset(i))
@@ -315,13 +317,13 @@ class Algorithm:
 
 
             if hand != ():
-                beats = sum(1 for x in op["fiver"] if self.compare(hand, x))
+                beats = sum(1 for x in list(set(op["fiver"]) + set(op["fours"])) if self.compare(hand, x))
 
                 classes["all"].append(i)
                 
-                if beats == len(op["fiver"]):
+                if beats == len(list(set(op["fiver"]) + set(op["fours"]))):
                     classes["A"].append(i)
-                elif beats > 0.8 * len(op["fiver"]):
+                elif beats > 0.8 * len(list(set(op["fiver"]) + set(op["fours"]))):
                     classes["B"].append(i)
                 elif beats == 0:
                     classes["D"].append(i)
