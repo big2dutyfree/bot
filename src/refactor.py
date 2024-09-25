@@ -359,12 +359,12 @@ class Algorithm:
         hand.sort()
 
         if hand[2] in classified["A"]:
-            return hand[1]
+            return [hand[1]]
         
         if 1 in ohands:
-            return hand[2]
+            return [hand[2]]
         
-        return hand[0]
+        return [hand[0]]
     
     def four_cards(self, hand: list, classified: dict, ohands: list) -> list:
         triples = [i for i in classified["all"] if len(i) == 3]
