@@ -738,6 +738,17 @@ class Algorithm:
 
                 if len(pairs) != 0:
                     return self.untuple_cards(pairs[0]), ""
+                
+                if len(classified["A"]) != 0:
+                    return self.untuple_cards(classified["A"][-1]), ""
+                if len(classified["B"]) != 0:
+                    return self.untuple_cards(classified["B"][-1]), ""
+                if len(classified["C"]) != 0:
+                    return self.untuple_cards(classified["C"][-1]), ""
+                if len(classified["D"]) != 0:
+                    return self.untuple_cards(classified["D"][-1]), ""
+                
+                
             else:
                 if len(trips) > len(pairs) and len(fives) == 0 and len(fours) == 0:
                     return self.untuple_cards(trips[0]), ""
