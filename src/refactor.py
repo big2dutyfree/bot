@@ -627,6 +627,8 @@ class Algorithm:
                 for i in classified["all"]:
                     if len(i) == 2 and (3, "D") in i:
                         return self.untuple_cards(i), ""
+                    
+                
                  
                 return ["3D"], ""
 
@@ -659,9 +661,24 @@ class Algorithm:
 
             # Find worst single
 
-            singles.sort()
+            for i in classified["D"]:
+                if len(i) == 1:
+                    worst_single = i
+            
+            if len(worst_single) == 0:
+                for i in classified["C"]:
+                    if len(i) == 1:
+                        worst_single = i
+            
+            if len(worst_single) == 0:
+                for i in classified["B"]:
+                    if len(i) == 1:
+                        worst_single = i
 
-            worst_single = singles[0]
+            if len(worst_single) == 0:
+                for i in classified["A"]:
+                    if len(i) == 1:
+                        worst_single = i
 
             # Find fives, trips and pairs
 
