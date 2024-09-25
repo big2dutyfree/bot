@@ -685,6 +685,22 @@ class Algorithm:
 
             # Find fives, trips and pairs
 
+            for i in classified["A"]:
+                if len(i) == 4:
+                    i.append(worst_single)
+
+            for i in classified["B"]:
+                if len(i) == 4:
+                    i.append(worst_single)
+
+            for i in classified["C"]:
+                if len(i) == 4:
+                    i.append(worst_single)
+
+            for i in classified["D"]:
+                if len(i) == 4:
+                    i.append(worst_single)
+
             for i in classified["all"]:
                 if len(i) == 5:
                     fives.append(i)
