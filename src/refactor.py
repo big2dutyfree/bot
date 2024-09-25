@@ -590,7 +590,7 @@ class Algorithm:
                         return [i[1]]
                     
         return []
-
+    
 
     def getAction(self, state: MatchState | None):
         hand = self.tuple_cards(state.myHand)
@@ -742,7 +742,6 @@ class Algorithm:
                 if len(trips) > len(pairs) and len(fives) == 0 and len(fours) == 0:
                     return self.untuple_cards(trips[0]), ""
                 if len(pairs) > len(singles) and len(fives) == 0 and len(fours) == 0:
-                    print("10")
                     return self.untuple_cards(pairs[0]), ""
                 
             if len(classified["D"]) != 0:
@@ -821,6 +820,16 @@ class Algorithm:
 
             passes = 0
             met = False
+
+            if 1 in ohands:
+                if len(reclassified["A"]) != 0:
+                    return self.untuple_cards(reclassified["A"][-1]), ""
+                if len(reclassified["B"]) != 0:
+                    return self.untuple_cards(reclassified["B"][-1]), ""
+                if len(reclassified["C"]) != 0:
+                    return self.untuple_cards(reclassified["C"][-1]), ""
+                if len(reclassified["D"]) != 0:
+                    return self.untuple_cards(reclassified["D"][-1]), ""
 
             round_history = state.matchHistory[-1].gameHistory[-1]
             round_history.reverse()
