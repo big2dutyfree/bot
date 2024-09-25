@@ -131,20 +131,20 @@ class Algorithm:
                     clubs.append(deck[i])
         
         for subset in itertools.combinations(spades, 5):
-            if ("Flush", self.oset(list(subset) + [deck[index]]), "S") not in hands["fiver"]:
-                hands["fiver"].append(("Flush", self.oset(list(subset) + [deck[index]]), "S"))
+            if ("Flush", self.oset(list(subset)), "S") not in hands["fiver"]:
+                hands["fiver"].append(("Flush", self.oset(list(subset)), "S"))
 
         for subset in itertools.combinations(hearts, 5):
-            if ("Flush", self.oset(list(subset) + [deck[index]]), "H") not in hands["fiver"]:
-                hands["fiver"].append(("Flush", self.oset(list(subset) + [deck[index]]), "H"))
+            if ("Flush", self.oset(list(subset)), "H") not in hands["fiver"]:
+                hands["fiver"].append(("Flush", self.oset(list(subset)), "H"))
 
         for subset in itertools.combinations(clubs, 5):
-            if ("Flush", self.oset(list(subset) + [deck[index]]), "C") not in hands["fiver"]:
-                hands["fiver"].append(("Flush", self.oset(list(subset) + [deck[index]]), "C"))
+            if ("Flush", self.oset(list(subset)), "C") not in hands["fiver"]:
+                hands["fiver"].append(("Flush", self.oset(list(subset)), "C"))
 
         for subset in itertools.combinations(diamonds, 5):
-            if ("Flush", self.oset(list(subset) + [deck[index]]), "D") not in hands["fiver"]:
-                hands["fiver"].append(("Flush", self.oset(list(subset) + [deck[index]]), "D"))
+            if ("Flush", self.oset(list(subset)), "D") not in hands["fiver"]:
+                hands["fiver"].append(("Flush", self.oset(list(subset)), "D"))
 
         
         # Full house
@@ -182,27 +182,21 @@ class Algorithm:
                 to_beat[1].sort()
 
                 if hand[1][4] > to_beat[1][4]:
-                    print("1", hand[1], to_beat[1])
                     return True
                 
                 if hand[1][4] == to_beat[1][4] and hand[1][3] > to_beat[1][3]:
-                    print("2", hand[1], to_beat[1])
                     return True
                 
                 if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] > to_beat[1][2]:
-                    print("3", hand[1], to_beat[1])
                     return True
                 
                 if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] == to_beat[1][2] and hand[1][1] > to_beat[1][1]:
-                    print("4", hand[1], to_beat[1])
                     return True
                 
                 if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] == to_beat[1][2] and hand[1][1] == to_beat[1][1] and hand[1][0] > to_beat[1][0]:
-                    print("5", hand[1], to_beat[1])
                     return True
                 
                 if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] == to_beat[1][2] and hand[1][1] == to_beat[1][1] and hand[1][0] == to_beat[1][0] and self.high_suit(hand[1][1], to_beat[1][1]) == hand[1][1]:
-                    print("6", hand[1], to_beat[1])
                     return True
             
             return False
@@ -362,29 +356,15 @@ class Algorithm:
                 
                 return i
 
-        higher = ()
-        lower = ()
+        hand.sort()
 
-        if self.compare([hand[0]], [hand[1]]):
-            higher = hand[0]
-            lower = hand[1]
-        else:
-            higher = hand[1]
-            lower = hand[0]
-
-        if self.compare([hand[2]], [higher]):
-            higher = hand[2]
-
-        if self.compare([lower], [hand[2]]):
-            lower = hand[2]
-
-        if [higher] in classified["A"]:
-            return list(set(hand) - {higher} - {lower})
+        if hand[2] in classified["A"]:
+            return hand[1]
         
         if 1 in ohands:
-            return [higher]
+            return hand[2]
         
-        return [lower]
+        return hand[0]
     
     def four_cards(self, hand: list, classified: dict, ohands: list) -> list:
         triples = [i for i in classified["all"] if len(i) == 3]
