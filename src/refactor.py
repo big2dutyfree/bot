@@ -514,9 +514,9 @@ class Algorithm:
             return False
         
         if len(tobeat) == 1:
-            if len(hand) <= 4:
+            if len(hand) <= 5:
                 return False
-            if 1 in ohands or 2 in ohands or 3 in ohands:
+            if 1 in ohands or 2 in ohands or 3 in ohands or 4 in ohands:
                 return False
             if len(classified["A"]) < (len(classified["B"]) + len(classified["C"]) + len(classified["D"])) or min(len(classified["A"]), ohands[0], ohands[1], ohands[2]) > 6:
                 if len(classified["A"]) > 0:
