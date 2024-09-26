@@ -261,7 +261,7 @@ class Algorithm:
         c1 = False
         c2 = False
 
-        for i in self.classified["all"]:
+        for i in [[(11, "H"), (11, "S")]]:
             if hand1[0] in i:
                 c1 = True
 
@@ -270,9 +270,9 @@ class Algorithm:
 
         if c1 ^ c2:
             if c1:
-                return -1
+                return 1
             
-            return 1
+            return -1
 
         if self.compare(hand1, hand2):
             return 1
@@ -666,18 +666,16 @@ class Algorithm:
             
             if (3, "D") in hand:
                 for i in classified["all"]:
-                    if len(i) == 3 and (3, "D") in i:
-                        return self.untuple_cards(i), ""
-                    
-                for i in classified["all"]:
                     if len(i) == 5 and (3, "D") in i:
+                        return self.untuple_cards(i), ""
+                
+                for i in classified["all"]:
+                    if len(i) == 3 and (3, "D") in i:
                         return self.untuple_cards(i), ""
                     
                 for i in classified["all"]:
                     if len(i) == 2 and (3, "D") in i:
                         return self.untuple_cards(i), ""
-                    
-                
                  
                 return ["3D"], ""
 
@@ -867,6 +865,8 @@ class Algorithm:
                             reclassified["all"].append(i)
 
             if len(beat) == 1:
+                print("Single sort")
+                print(self.classified)
                 reclassified["D"].sort(key=cmp_to_key(self.single_sort))
                 reclassified["C"].sort(key=cmp_to_key(self.single_sort))
                 reclassified["B"].sort(key=cmp_to_key(self.single_sort))
@@ -933,4 +933,3 @@ class Algorithm:
                 return self.untuple_cards(self.split_card(beat, reclassified)), ""
             
             return [], ""
-
