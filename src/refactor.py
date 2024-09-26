@@ -93,13 +93,13 @@ class Algorithm:
         # Straight flush
 
         for card in deck:
-            if card[0] <= 10 and (card[0] + 1, card[1]) in deck and (card[0] + 2, card[1]) in deck and (card[0] + 3, card[1]) in deck and (card[0] + 4, card[1]) in deck:
+            if card[0] <= 11 and (card[0] + 1, card[1]) in deck and (card[0] + 2, card[1]) in deck and (card[0] + 3, card[1]) in deck and (card[0] + 4, card[1]) in deck:
                 hands["fiver"].append(("Straight flush", card))
         
         # Straight
 
         for (index, rank) in enumerate(ranks):
-            if rank <= 10:
+            if rank <= 11:
                 card2 = [i for (i, x) in enumerate(ranks) if x == rank + 1]
                 card3 = [i for (i, x) in enumerate(ranks) if x == rank + 2]
                 card4 = [i for (i, x) in enumerate(ranks) if x == rank + 3]
@@ -325,7 +325,7 @@ class Algorithm:
 
             i = self.oset(i)
             
-            if i[0][0] <= 10 and i[0][0] == i[1][0] - 1 == i[2][0] - 2 == i[3][0] - 3 == i[4][0] - 4:
+            if i[0][0] <= 11 and i[0][0] == i[1][0] - 1 == i[2][0] - 2 == i[3][0] - 3 == i[4][0] - 4:
                 if i[0][1] == i[1][1] == i[2][1] == i[3][1] == i[4][1]:
                     hand = ("Straight flush", i[0])
                 else:
@@ -787,7 +787,7 @@ class Algorithm:
             beat.sort()
 
             if len(beat) == 5:
-                if beat[0][0] <= 10 and beat[0][0] == beat[1][0] - 1 == beat[2][0] - 2 == beat[3][0] - 3 == beat[4][0] - 4:
+                if beat[0][0] <= 11 and beat[0][0] == beat[1][0] - 1 == beat[2][0] - 2 == beat[3][0] - 3 == beat[4][0] - 4:
                     if beat[0][1] == beat[1][1] == beat[2][1] == beat[3][1] == beat[4][1]:
                         to_beat = ("Straight flush", beat[0])
                     else:
@@ -811,7 +811,7 @@ class Algorithm:
                     i.sort()
 
                     if len(i) == 5:
-                        if i[0][0] <= 10 and i[0][0] == i[1][0] - 1 == i[2][0] - 2 == i[3][0] - 3 == i[4][0] - 4:
+                        if i[0][0] <= 11 and i[0][0] == i[1][0] - 1 == i[2][0] - 2 == i[3][0] - 3 == i[4][0] - 4:
                             if i[0][1] == i[1][1] == i[2][1] == i[3][1] == i[4][1]:
                                 trick = ("Straight flush", i[0])
                             else:
