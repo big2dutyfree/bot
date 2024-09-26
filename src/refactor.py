@@ -241,9 +241,9 @@ class Algorithm:
             return -1
 
         if self.compare(hand1, hand2):
-            return 1
+            return -1
         
-        return -1
+        return 1
     
 
     def single_sort(self, hand1, hand2):
