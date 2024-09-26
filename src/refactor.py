@@ -234,12 +234,45 @@ class Algorithm:
             return False
         
     def five_sort(self, hand1, hand2):
-        if hand1[4][0] == 15 or hand2[4][0] == 15:
+        if (hand1[4][0] == 15) ^ (hand2[4][0] == 15):
             if hand1[4][0] == 15:
-                return -1
-            
-            if hand2[4][0] == 15:
                 return 1
+            
+            return -1
+
+        if self.compare(hand1, hand2):
+            return 1
+        
+        return -1
+    
+
+    def single_sort(self, hand1, hand2):
+        if len(hand1) != 1 or len(hand2) != 1:
+            if len(hand1) > len(hand2):
+                return -1
+            if len(hand1) < len(hand2):
+                return 1
+            
+            if self.compare(hand1, hand2):
+                return 1
+            
+            return -1
+
+        c1 = False
+        c2 = False
+
+        for i in self.classified["all"]:
+            if hand1[0] in i:
+                c1 = True
+
+            if hand2[0] in i:
+                c2 = True
+
+        if c1 ^ c2:
+            if c1:
+                return 1
+            
+            return -1
 
         if self.compare(hand1, hand2):
             return 1
@@ -613,6 +646,8 @@ class Algorithm:
                 played.extend(cards_played.cards)
 
         classified = self.classify(hand, played)
+        
+        self.classified = classified
 
         ohands = []
 
@@ -730,16 +765,10 @@ class Algorithm:
             pairs.sort()
             singles.sort()
 
-            classified["A"].sort()
-            classified["B"].sort()
-            classified["C"].sort()
-            classified["D"].sort()
-            
-            classified["A"].sort(key=len, reverse=True)
-            classified["B"].sort(key=len, reverse=True)
-            classified["C"].sort(key=len, reverse=True)
-            classified["D"].sort(key=len, reverse=True)
-
+            classified["A"].sort(key=cmp_to_key(self.single_sort))
+            classified["B"].sort(key=cmp_to_key(self.single_sort))
+            classified["C"].sort(key=cmp_to_key(self.single_sort))
+            classified["D"].sort(key=cmp_to_key(self.single_sort))
 
             if 1 in ohands:
                 if len(fives) != 0:
@@ -837,7 +866,13 @@ class Algorithm:
                             reclassified[rank].append(i)
                             reclassified["all"].append(i)
 
-            if len(beat) != 5:
+            if len(beat) == 1:
+                reclassified["D"].sort(key=cmp_to_key(self.single_sort))
+                reclassified["C"].sort(key=cmp_to_key(self.single_sort))
+                reclassified["B"].sort(key=cmp_to_key(self.single_sort))
+                reclassified["A"].sort(key=cmp_to_key(self.single_sort))
+                reclassified["all"].sort(key=cmp_to_key(self.single_sort))
+            elif len(beat) != 5:
                 reclassified["D"].sort()
                 reclassified["C"].sort()
                 reclassified["B"].sort()
