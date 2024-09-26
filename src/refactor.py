@@ -270,9 +270,9 @@ class Algorithm:
 
         if c1 ^ c2:
             if c1:
-                return 1
+                return -1
             
-            return -1
+            return 1
 
         if self.compare(hand1, hand2):
             return 1
