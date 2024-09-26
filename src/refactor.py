@@ -234,11 +234,12 @@ class Algorithm:
             return False
         
     def five_sort(self, hand1, hand2):
-        if hand1[4][0] == 15 ^ hand2[4][0] == 15:
+        if hand1[4][0] == 15 or hand2[4][0] == 15:
             if hand1[4][0] == 15:
                 return -1
             
-            return 1
+            if hand2[4][0] == 15:
+                return 1
 
         if self.compare(hand1, hand2):
             return 1
