@@ -261,11 +261,11 @@ class Algorithm:
         c1 = False
         c2 = False
 
-        for i in [[(11, "H"), (11, "S")]]:
-            if hand1[0] in i:
+        for i in self.classified["all"]:
+            if hand1[0] in i and hand1 != i:
                 c1 = True
 
-            if hand2[0] in i:
+            if hand2[0] in i and hand2 != i:
                 c2 = True
 
         if c1 ^ c2:
