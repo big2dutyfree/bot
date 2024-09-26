@@ -239,12 +239,78 @@ class Algorithm:
                 return 1
             
             return -1
+        
+        h1 = ()
+        h2 = ()
+        larger = False
 
-        if self.compare(hand1, hand2):
+        if hand1[0][0] <= 11 and hand1[0][0] == hand1[1][0] - 1 == hand1[2][0] - 2 == hand1[3][0] - 3 == hand1[4][0] - 4:
+            if hand1[0][1] == hand1[1][1] == hand1[2][1] == hand1[3][1] == hand1[4][1]:
+                h1 = ("Straight flush", hand1[0])
+            else:
+                h1 = ("Straight", hand1[0])
+        elif hand1[0][1] == hand1[1][1] == hand1[2][1] == hand1[3][1] == hand1[4][1]:
+            h1 = ("Flush", hand1)
+        elif hand1[0][0] == hand1[1][0] == hand1[2][0] and hand1[3][0] == hand1[4][0]:
+            h1 = ("Full house", hand1[0][0], hand1[3][0])
+        elif hand1[0][0] == hand1[1][0] and hand1[2][0] == hand1[3][0] == hand1[4][0]:
+            h1 = ("Full house", hand1[2][0], hand1[0][0])
+        elif hand1[0][0] == hand1[1][0] == hand1[2][0] == hand1[3][0]:
+            h1 = ("Four of a kind", hand1[0][0], hand1[4])
+        elif hand1[1][0] == hand1[2][0] == hand1[3][0] == hand1[4][0]:
+            h1 = ("Four of a kind", hand1[1][0], hand1[0])
+
+        if hand2[0][0] <= 11 and hand2[0][0] == hand2[1][0] - 1 == hand2[2][0] - 2 == hand2[3][0] - 3 == hand2[4][0] - 4:
+            if hand2[0][1] == hand2[1][1] == hand2[2][1] == hand2[3][1] == hand2[4][1]:
+                h2 = ("Straight flush", hand2[0])
+            else:
+                h2 = ("Straight", hand2[0])
+        elif hand2[0][1] == hand2[1][1] == hand2[2][1] == hand2[3][1] == hand2[4][1]:
+            h2 = ("Flush", hand2)
+        elif hand2[0][0] == hand2[1][0] == hand2[2][0] and hand2[3][0] == hand2[4][0]:
+            h2 = ("Full house", hand2[0][0], hand2[3][0])
+        elif hand2[0][0] == hand2[1][0] and hand2[2][0] == hand2[3][0] == hand2[4][0]:
+            h2 = ("Full house", hand2[2][0], hand2[0][0])
+        elif hand2[0][0] == hand2[1][0] == hand2[2][0] == hand2[3][0]:
+            h2 = ("Four of a kind", hand2[0][0], hand2[4])
+        elif hand2[1][0] == hand2[2][0] == hand2[3][0] == hand2[4][0]:
+            h2 = ("Four of a kind", hand2[1][0], hand2[0])
+
+        if h1[0] in ["Straight flush", "Straight", "Flush"] or h2[0] in ["Straight flush", "Straight", "Flush"]:
+            if h1[0] != "Four of a kind" and h2[0] != "Four of a kind":
+                if self.compare(h1, h2):
+                    larger = True
+                
+                larger = False 
+        elif h1[0] == "Straight flush":
+            larger = True
+        elif h2[0] == "Straight flush":
+            larger = False
+        elif h1[0] == "Four of a kind":
+            if h2[0] in ["Full house", "Straight", "Flush"]:
+                larger = True
+            elif h2[0] == "Four of a kind":
+                if h1[1] > h2[1]:
+                    larger = True
+                elif h1[1] == h2[1] and h1[2][0] > h2[2][0]:
+                    larger = True
+                elif h1[1] == h2[1] and h1[2][0] == h2[2][0] and self.high_suit(h1[2][1], h1[2][1]) == h1[2][1]:
+                    larger = True
+                else:
+                    larger = False
+        else:
+            if h1[1] > h2[1]:
+                larger = True
+            elif h1[1] == h2[1] and h1[2] > h2[2]:
+                larger = True
+            else:
+                larger = False
+
+        if larger:
             return -1
         
         return 1
-    
+
 
     def single_sort(self, hand1, hand2):
         if len(hand1) != 1 or len(hand2) != 1:
