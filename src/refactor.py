@@ -842,11 +842,13 @@ class Algorithm:
                 reclassified["C"].sort()
                 reclassified["B"].sort()
                 reclassified["A"].sort()
+                reclassified["all"].sort()
             else:
                 reclassified["D"].sort(key=cmp_to_key(self.five_sort))
                 reclassified["C"].sort(key=cmp_to_key(self.five_sort))
                 reclassified["B"].sort(key=cmp_to_key(self.five_sort))
                 reclassified["A"].sort(key=cmp_to_key(self.five_sort))
+                reclassified["all"].sort(key=cmp_to_key(self.five_sort))
 
             print(reclassified["all"])
 
