@@ -5,6 +5,7 @@ Copyright (c) The Plastic Tortoise & TNemz
 
 from classes import *
 import itertools
+from functools import cmp_to_key
 
 class Algorithm:
     def oset(self, olist: list) -> list:
@@ -231,6 +232,18 @@ class Algorithm:
                 return True
             
             return False
+        
+    def five_sort(self, hand1, hand2):
+        if hand1[4][0] == 15 ^ hand2[4][0] == 15:
+            if hand1[4][0] == 15:
+                return -1
+            
+            return 1
+
+        if self.compare(hand1, hand2):
+            return 1
+        
+        return -1
 
 
     def classify(self, hand: list, played: list):
@@ -711,6 +724,7 @@ class Algorithm:
                 if len(i) == 1:
                     singles.append(i)
 
+            fives.sort(key=cmp_to_key(self.five_sort))
             trips.sort()
             pairs.sort()
             singles.sort()
@@ -822,10 +836,16 @@ class Algorithm:
                             reclassified[rank].append(i)
                             reclassified["all"].append(i)
 
-            reclassified["D"].sort()
-            reclassified["C"].sort()
-            reclassified["B"].sort()
-            reclassified["A"].sort()
+            if len(beat) != 5:
+                reclassified["D"].sort()
+                reclassified["C"].sort()
+                reclassified["B"].sort()
+                reclassified["A"].sort()
+            else:
+                reclassified["D"].sort(key=cmp_to_key(self.five_sort))
+                reclassified["C"].sort(key=cmp_to_key(self.five_sort))
+                reclassified["B"].sort(key=cmp_to_key(self.five_sort))
+                reclassified["A"].sort(key=cmp_to_key(self.five_sort))
 
             print(reclassified["all"])
 
