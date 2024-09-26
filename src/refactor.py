@@ -181,22 +181,22 @@ class Algorithm:
                 hand[1].sort()
                 to_beat[1].sort()
 
-                if hand[1][4] > to_beat[1][4]:
+                if hand[1][4][0] > to_beat[1][4][0]:
                     return True
                 
-                if hand[1][4] == to_beat[1][4] and hand[1][3] > to_beat[1][3]:
+                if hand[1][4][0] == to_beat[1][4][0] and hand[1][3][0] > to_beat[1][3][0]:
                     return True
                 
-                if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] > to_beat[1][2]:
+                if hand[1][4][0] == to_beat[1][4][0] and hand[1][3][0] == to_beat[1][3][0] and hand[1][2][0] > to_beat[1][2][0]:
                     return True
                 
-                if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] == to_beat[1][2] and hand[1][1] > to_beat[1][1]:
+                if hand[1][4][0] == to_beat[1][4][0] and hand[1][3][0] == to_beat[1][3][0] and hand[1][2][0] == to_beat[1][2][0] and hand[1][1][0] > to_beat[1][1][0]:
                     return True
                 
-                if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] == to_beat[1][2] and hand[1][1] == to_beat[1][1] and hand[1][0] > to_beat[1][0]:
+                if hand[1][4][0] == to_beat[1][4][0] and hand[1][3][0] == to_beat[1][3][0] and hand[1][2][0] == to_beat[1][2][0] and hand[1][1][0] == to_beat[1][1][0] and hand[1][0][0] > to_beat[1][0][0]:
                     return True
                 
-                if hand[1][4] == to_beat[1][4] and hand[1][3] == to_beat[1][3] and hand[1][2] == to_beat[1][2] and hand[1][1] == to_beat[1][1] and hand[1][0] == to_beat[1][0] and self.high_suit(hand[1][1], to_beat[1][1]) == hand[1][1]:
+                if hand[1][4][0] == to_beat[1][4][0] and hand[1][3][0] == to_beat[1][3][0] and hand[1][2][0] == to_beat[1][2][0] and hand[1][1][0] == to_beat[1][1][0] and hand[1][0][0] == to_beat[1][0][0] and self.high_suit(hand[1][0][1], to_beat[1][0][1]) == hand[1][1]:
                     return True
             
             return False
