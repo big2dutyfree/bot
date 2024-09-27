@@ -299,7 +299,9 @@ class Algorithm:
                 else:
                     larger = False
         else:
-            if h1[1] > h2[1]:
+            if h2[0] == "Four of a kind":
+                larger = False
+            elif h1[1] > h2[1]:
                 larger = True
             elif h1[1] == h2[1] and h1[2] > h2[2]:
                 larger = True
@@ -776,22 +778,22 @@ class Algorithm:
 
             for i in classified["D"]:
                 if len(i) == 1:
-                    worst_single = i
+                    worst_single = i[0]
             
             if len(worst_single) == 0:
                 for i in classified["C"]:
                     if len(i) == 1:
-                        worst_single = i
+                        worst_single = i[0]
             
             if len(worst_single) == 0:
                 for i in classified["B"]:
                     if len(i) == 1:
-                        worst_single = i
+                        worst_single = i[0]
 
             if len(worst_single) == 0:
                 for i in classified["A"]:
                     if len(i) == 1:
-                        worst_single = i
+                        worst_single = i[0]
 
             # Find fives, trips and pairs
 
