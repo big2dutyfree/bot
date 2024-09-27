@@ -729,7 +729,7 @@ class Algorithm:
             print("Control")
             # One combination left
         
-            if self.oset(hand) in classified["A"] or self.oset(hand) in classified["B"] or self.oset(hand) in classified["C"] or self.oset(hand) in classified["D"]:
+            if (self.oset(hand) in classified["A"] or self.oset(hand) in classified["B"] or self.oset(hand) in classified["C"] or self.oset(hand) in classified["D"]) and len(hand) != 4:
                 return self.untuple_cards(hand), ""
             
             if (3, "D") in hand:
